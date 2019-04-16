@@ -51,6 +51,19 @@ class LoginUserApi(MethodView):
             name = data["name"]
             passwd = data["passwd"]
 
+            cur = db.connection.cursor()
+            cur.execute('select * from User where NAME="'+name+'"')
+            rv = cur.fetchall()
+            stored_passwd = rv[0][2]
+
+            salt = stored_passwd[64:]
+            hased_passwd = hashlib.sha256(passwd.encode() + salt.encode()).hexdigest()
+
+            if hased_passwd == stored_passwd[:64]:
+                return make_response(jsonify({'message': 'Correct' }))
+            else
+                return make_response(jsonify({'message': 'Incorrect' }))
+
         return make_response(jsonify({'message':'Specify the name and passwd'}))
 
     def get(self):
