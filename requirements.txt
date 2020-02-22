@@ -6,4 +6,4 @@ Jinja2==2.10
 MarkupSafe==1.1.1
 mysqlclient==1.4.2.post1
 PyJWT==1.7.1
-Werkzeug==0.15.1
+Werkzeug==0.15.3
