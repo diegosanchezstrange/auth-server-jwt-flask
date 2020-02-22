@@ -1,7 +1,9 @@
 import os
-from flask import Blueprint, request, jsonify, make_response
+from flask import Blueprint, request, jsonify, make_response, current_app
 from flask.views import MethodView
 import hashlib, binascii, uuid
+import jwt
+import datetime
 from .. import db
 
 bp = Blueprint('api', __name__, url_prefix='/')
@@ -16,6 +18,8 @@ class RegisterUserAPI(MethodView):
 
     def post(self):
         data = request.get_json()
+        if data is None:
+            return make_response(jsonify({'message':'Specify the name and passwd'}))
         if 'name' in data and 'passwd' in data:
             name = data['name']
             passwd = data['passwd']
@@ -60,9 +64,10 @@ class LoginUserApi(MethodView):
             hased_passwd = hashlib.sha256(passwd.encode() + salt.encode()).hexdigest()
 
             if hased_passwd == stored_passwd[:64]:
-                return make_response(jsonify({'message': 'Correct' }))
-            else
-                return make_response(jsonify({'message': 'Incorrect' }))
+                token = jwt.encode({'user': name, 'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=1)}, current_app.config['SECRET_KEY'])
+                return jsonify({'token': token.decode('UTF-8')})
+            else:
+                return jsonify('Could not verify!', 401, {'WWW-Authenticate': 'Basic realm="Login Required"'})
 
         return make_response(jsonify({'message':'Specify the name and passwd'}))
 
