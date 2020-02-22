@@ -51,6 +51,8 @@ class LoginUserApi(MethodView):
 
     def post(self):
         data = request.get_json()
+        if data is None:
+            return make_response(jsonify({'message':'Specify the name and passwd'}))
         if 'name' in data and 'passwd' in data:
             name = data["name"]
             passwd = data["passwd"]
@@ -58,6 +60,8 @@ class LoginUserApi(MethodView):
             cur = db.connection.cursor()
             cur.execute('select * from User where NAME="'+name+'"')
             rv = cur.fetchall()
+            if not rv:
+                return make_response(jsonify({'message':'Specify a valid name and passwd'}))
             stored_passwd = rv[0][2]
 
             salt = stored_passwd[64:]
