@@ -69,8 +69,8 @@ class LoginUserApi(MethodView):
 
             if hased_passwd == stored_passwd[:64]:
                 token = jwt.encode({'user': name, 'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=1)}, current_app.config['SECRET_KEY'])
-                print(token)
-                return jsonify({'token': token.decode('UTF-8')})
+                print(str(token) + " : " + str(rv[0][0]))
+                return jsonify({'token': token.decode('UTF-8'), 'user_id': rv[0][0], 'user_name': rv[0][1]})
             else:
                 return jsonify('Could not verify!', 401, {'WWW-Authenticate': 'Basic realm="Login Required"'})
 
